@@ -54,21 +54,62 @@
         <div class="flower__glass"></div>
     </div>
     <div id="timer">60</div>
+    <div id="congratulation">Взлетай!</div>
+    <div id="water-drop"></div>
+    <div id="game-over" class="hidden">
+        <p>Гравитация бессердечна :(</p>
+        <button id="restart-btn">Начать сначала</button>
+    </div>
 
 <script>
     let timer = 60;
+    let waterLevel = 15; // начальный уровень воды в vmin
     const timerElement = document.getElementById('timer');
     const flower = document.querySelector('.flower');
+    const waterDrop = document.getElementById('water-drop');
+    const glass = document.querySelector('.flower__glass');
 
     function updateTimer() {
         timer--;
         timerElement.textContent = timer;
+
+        // Уменьшать уровень воды каждую секунду
+        waterLevel = Math.max(waterLevel - 15/60, 0); // уменьшать на 15vmin за 60 секунд
+        glass.style.setProperty('--water-height', waterLevel + 'vmin');
+
         if (timer > 0) {
             setTimeout(updateTimer, 1000);
         } else {
             flower.classList.add('wilted');
+            document.getElementById('game-over').classList.remove('hidden');
         }
     }
+
+    waterDrop.addEventListener('click', () => {
+        timer = Math.min(timer + 10, 60); // Долить 10 секунд, но не больше 60
+        timerElement.textContent = timer;
+
+        // Увеличить уровень воды
+        waterLevel = Math.min(waterLevel + 2.5, 15); // увеличить на 2.5vmin за 10 секунд
+        glass.style.setProperty('--water-height', waterLevel + 'vmin');
+
+        // Анимация капли
+        waterDrop.style.animation = 'drop-fall 0.5s ease-in-out';
+        setTimeout(() => {
+            waterDrop.style.animation = '';
+        }, 500);
+    });
+
+    document.getElementById('restart-btn').addEventListener('click', () => {
+        // Сброс игры
+        timer = 60;
+        waterLevel = 15;
+        timerElement.textContent = timer;
+        glass.style.setProperty('--water-height', waterLevel + 'vmin');
+        flower.classList.remove('wilted');
+        document.getElementById('game-over').classList.add('hidden');
+        updateTimer();
+    });
 
     updateTimer();
 </script>
